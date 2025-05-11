@@ -127,9 +127,10 @@ function refreshUi(account) {
   calcDisplaySummary(account);
 }
 
-function displayMovements(movements) {
+function displayMovements(movements, sort = false) {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
   containerMovements.innerHTML = "";
-  movements.forEach(function (mov, i) {
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? "deposit" : "withdrawal";
     const html = `
      <div class="movements__row">
@@ -170,3 +171,38 @@ const calcDisplaySummary = function calcDisplaySummary(account) {
   labelSumOut.textContent = `${out}€`;
   labelSumInterest.textContent = `${sumInt}€`;
 };
+
+btnClose.addEventListener("click", function (e) {
+  e.preventDefault();
+  if (
+    logedUser.username == inputCloseUsername.value &&
+    logedUser.pin == Number(inputClosePin.value)
+  ) {
+    let index = accounts.findIndex(
+      (acc) => acc.username === logedUser.username
+    );
+    accounts.splice(index, 1);
+    console.log(index);
+    containerApp.style.opacity = 0;
+    console.log(accounts);
+  }
+});
+
+btnLoan.addEventListener("click", function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  let aux = logedUser.movements.some((mov) => mov >= amount * 0.1);
+  console.log(aux);
+  if (aux) {
+    logedUser.movements.push(amount);
+    refreshUi(logedUser);
+  }
+});
+
+let sorted = false;
+
+btnSort.addEventListener("click", function (e) {
+  e.preventDefault();
+  displayMovements(logedUser.movements, !sorted);
+  sorted = !sorted;
+});
